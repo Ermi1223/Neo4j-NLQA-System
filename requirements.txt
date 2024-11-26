@@ -1,4 +1,4 @@
 neo4j
 langchain
-openai
 python-dotenv
+requests  # Required for calling the Gemini API

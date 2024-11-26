@@ -1,25 +1,45 @@
+from dotenv import load_dotenv
+import os
+from utils.neo4j_helper import Neo4jHelper
+from utils.gemini_api_helper import GeminiAPIHelper
 from nlp.query_parser import QueryParser
+from query_translator import QueryTranslator
 
-def main():
-    print("Welcome to the Neo4j Natural Language Query System with Gemini API!")
-    parser = QueryParser()
+# Load environment variables from .env
+load_dotenv()
 
-    try:
-        while True:
-            user_query = input("\nEnter your query (or type 'exit' to quit): ")
-            if user_query.lower() == 'exit':
-                print("Goodbye!")
-                break
+# Get values from environment variables
+uri = os.getenv("NEO4J_URI")  # Ensure this is not None or empty
+user = os.getenv("NEO4J_USERNAME")
+password = os.getenv("NEO4J_PASSWORD")
 
-            try:
-                cypher_query = parser.parse_to_cypher(user_query)
-                print(f"\nExecuting Cypher query:\n{cypher_query}\n")
-                records = db.run_query(cypher_query)
-                for record in records:
-                    print(record)
-            except Exception as e:
-                print(f"Error: {e}")
+# Ensure that the environment variables are loaded correctly
+if not uri or not user or not password:
+    raise ValueError("Neo4j credentials are not set correctly in the .env file.")
 
-    finally:
-        db.close()
-        print("Neo4j connection closed.")
+# Initialize components
+query_parser = QueryParser()
+neo4j_helper = Neo4jHelper(
+    uri=uri,
+    user=user,
+    password=password
+)
+translator = QueryTranslator(neo4j_helper)
+
+# Example usage: Get a natural language query from the user and process it
+user_query = "5 nodes from the graph that are labeled as gene"
+parsed_query = query_parser.parse(user_query)
+cypher_query = translator.translate(parsed_query)
+
+# Running the query to fetch relevant results
+result = neo4j_helper.run_query(cypher_query)
+
+# Fetch the results all at once into a list to avoid consuming it multiple times
+records = list(result)  # Converting the result into a list before any iteration
+
+# Now you can safely iterate through the results
+for record in records:
+    print(record)
+
+# Close the Neo4j connection
+neo4j_helper.close()
