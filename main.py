@@ -9,7 +9,7 @@ from query_translator import QueryTranslator
 load_dotenv()
 
 # Get values from environment variables
-uri = os.getenv("NEO4J_URI")  # Ensure this is not None or empty
+uri = os.getenv("NEO4J_URI")
 user = os.getenv("NEO4J_USERNAME")
 password = os.getenv("NEO4J_PASSWORD")
 
@@ -19,12 +19,9 @@ if not uri or not user or not password:
 
 # Initialize components
 query_parser = QueryParser()
-neo4j_helper = Neo4jHelper(
-    uri=uri,
-    user=user,
-    password=password
-)
+neo4j_helper = Neo4jHelper(uri=uri, user=user, password=password)
 translator = QueryTranslator(neo4j_helper)
+gemini_helper = GeminiAPIHelper()  # Initialize Gemini API helper
 
 # Example usage: Get a natural language query from the user and process it
 user_query = "5 nodes from the graph that are labeled as gene"
@@ -40,6 +37,10 @@ records = list(result)  # Converting the result into a list before any iteration
 # Now you can safely iterate through the results
 for record in records:
     print(record)
+
+# After querying the graph, you can process the query through Gemini for content generation
+processed_query = gemini_helper.process_query(user_query)
+print("Generated Content from Gemini API: ", processed_query)
 
 # Close the Neo4j connection
 neo4j_helper.close()
