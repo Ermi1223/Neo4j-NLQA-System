@@ -23,24 +23,40 @@ neo4j_helper = Neo4jHelper(uri=uri, user=user, password=password)
 translator = QueryTranslator(neo4j_helper)
 gemini_helper = GeminiAPIHelper()  # Initialize Gemini API helper
 
-# Example usage: Get a natural language query from the user and process it
-user_query = "1 nodes from the graph that are labeled as gene"
-parsed_query = query_parser.parse(user_query)
-cypher_query = translator.translate(parsed_query)
+# User input loop
+while True:
+    user_query = input("\nEnter your query (or type 'exit' to quit): ").strip()
+    
+    # Exit condition
+    if user_query.lower() == 'exit':
+        print("Exiting the application. Goodbye!")
+        break
+    
+    try:
+        # Parse the user's query
+        parsed_query = query_parser.parse(user_query)
+        
+        # Translate the parsed query into Cypher
+        cypher_query = translator.translate(parsed_query)
+        
+        # Run the Cypher query to fetch results
+        result = neo4j_helper.run_query(cypher_query)
+        records = list(result)  # Convert the results into a list
 
-# Running the query to fetch relevant results
-result = neo4j_helper.run_query(cypher_query)
+        # Display results
+        if records:
+            print("\nQuery Results:")
+            for record in records:
+                print(record)
+        else:
+            print("\nNo results found for your query.")
 
-# Fetch the results all at once into a list to avoid consuming it multiple times
-records = list(result)  # Converting the result into a list before any iteration
-
-# Now you can safely iterate through the results
-for record in records:
-    print(record)
-
-# After querying the graph, you can process the query through Gemini for content generation
-processed_query = gemini_helper.process_query(user_query)
-print("Generated Content from Gemini API: ", processed_query)
+        # Process the query through Gemini for content generation
+        processed_query = gemini_helper.process_query(user_query)
+        print("\nGenerated Content from Gemini API:", processed_query)
+    
+    except Exception as e:
+        print("\nAn error occurred while processing your query:", str(e))
 
 # Close the Neo4j connection
 neo4j_helper.close()
