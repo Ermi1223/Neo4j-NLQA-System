@@ -24,7 +24,7 @@ translator = QueryTranslator(neo4j_helper)
 gemini_helper = GeminiAPIHelper()  # Initialize Gemini API helper
 
 # Example usage: Get a natural language query from the user and process it
-user_query = "5 nodes from the graph that are labeled as gene"
+user_query = "1 nodes from the graph that are labeled as gene"
 parsed_query = query_parser.parse(user_query)
 cypher_query = translator.translate(parsed_query)
 

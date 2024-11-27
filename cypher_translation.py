@@ -8,7 +8,8 @@ openai.api_key = os.getenv("MML_GEMINI_API_KEY")
 
 def translate_to_cypher(natural_language_query):
     response = openai.Completion.create(
-        model="text-davinci-003",  # Replace with MML Gemini when available
+        #model="text-davinci-003",  # Replace with MML Gemini when available
+        model = genai.GenerativeModel("gemini-1.5-flash")
         prompt=f"Convert this natural language query to a Cypher query: {natural_language_query}",
         max_tokens=150
     )
