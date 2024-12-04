@@ -53,7 +53,8 @@ while True:
 
         # Process the query through Gemini for content generation
         processed_query = gemini_helper.process_query(user_query)
-        print("\nGenerated Content from Gemini API:", processed_query)
+        if processed_query:
+            print("\nGenerated Content from Gemini API:", processed_query)
     
     except Exception as e:
         print("\nAn error occurred while processing your query:", str(e))
